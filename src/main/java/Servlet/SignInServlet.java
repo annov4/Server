@@ -28,7 +28,7 @@ public class SignInServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().println("Enter login and password");
 
-        } else if(accountService.checkUser(password) != true) {
+        } else if(!accountService.checkUser(password)) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().println("Incorrect password");
 
