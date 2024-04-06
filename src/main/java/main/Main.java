@@ -6,18 +6,18 @@ import Servlet.SignUpServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import Service.DBService;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        AccountService accountService = new AccountService();
+        AccountService accountService = new AccountService(DBService.getH2Connection());
 
-        Server server = new Server(8080);
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 
-        context.addServlet(new ServletHolder(new SignInServlet(accountService)), "/signin");//все запросы начинающиеся с signin будут направлены в сервлет SignInServlet
+        context.addServlet(new ServletHolder(new SignInServlet(accountService)), "/signin");
         context.addServlet(new ServletHolder(new SignUpServlet(accountService)), "/signup");
 
-
+        Server server = new Server(8080);
         server.setHandler(context);
 
         server.start();

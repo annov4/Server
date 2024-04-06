@@ -1,26 +1,48 @@
 package Service;
 
-import java.util.HashMap;
-import java.util.Map;
+
+import Executor.Executor;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public class AccountService {
-    private final Map<String, User> loginToProfile;
+    private Executor executor;
 
-    public AccountService() {
-        loginToProfile = new HashMap<>();
+    public AccountService(Connection connection) throws SQLException{
+        this.executor = new Executor(connection);
+        try {
+            createTable();
+        } catch (SQLException e) {
+            throw e;
+        }
     }
 
-    public void addNewUser(User user) {
-        loginToProfile.put(user.getLogin(), user);
+    public User getUserByLogin(String login) throws SQLException {
+        return executor.execQuery("login='" + login + "'", result -> {
+            result.next();
+            return new User(result.getLong(1), result.getString(2), result.getString(3));
+        });
     }
 
-    public boolean checkUser(String login, String password) {
-        User user = loginToProfile.get(login);
-        return user != null && user.getLogin().equals(login) && user.getPassword().equals(password);
+    public void insertUser(User user) throws SQLException {
+        executor.execUpdate("insert into users (login, password) values ('" + user.getLogin() + "','" + user.getPassword() + "')");
     }
-    public boolean checkUser(String password) {
-        User user = loginToProfile.get(password);
-        return user != null && user.getPassword().equals(password);
+
+    public void createTable() throws SQLException {
+        executor.execUpdate("create table if not exists users (id bigint auto_increment, login varchar(256), password varchar(256), primary key (id))");
     }
+
+    public User get(long id) throws SQLException {
+        return executor.execQuery("id='" + id + "'", result -> {
+            result.next();
+            return new User(result.getLong(1), result.getString(2), result.getString(3));
+        });
+    }
+    public long getUserId(String login) throws SQLException {
+        return executor.execQuery("login='" + login + "'", result -> {
+            result.next();
+            return result.getLong(1);
+        });
+    }
+
 }
-

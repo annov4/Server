@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.SQLException;
 
 public class SignUpServlet extends HttpServlet {
     private final AccountService accountService;
@@ -25,12 +26,23 @@ public class SignUpServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().println("Enter login and password");
             return;
-        } else if (accountService.checkUser(login, password) == true) {
-            response.setStatus(HttpServletResponse.SC_CONFLICT);
-            response.getWriter().println("User with this login is already registered");
-            return;
         }
-        accountService.addNewUser(new User(login, password));
+        try {
+            User user = accountService.getUserByLogin(login);
+            if (user.getLogin().equals(login)) {
+                response.setStatus(HttpServletResponse.SC_CONFLICT);
+                response.getWriter().println("User with this login is already registered");
+                return;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        User user = new User(login, password);
+                try {
+                    accountService.insertUser(user);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
         response.setStatus(HttpServletResponse.SC_OK);
         response.getWriter().println("User registered");
     }
