@@ -38,5 +38,10 @@ public class SignInServlet extends HttpServlet {
             throw new RuntimeException(e);
         }
             response.getWriter().println("Authorized: " + login);
+        try {
+            accountService.insertUser(new User(login, password));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

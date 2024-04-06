@@ -12,6 +12,7 @@ public class DBService {
     public DBService() {
         this.connection = getH2Connection();
     }
+
     public static Connection getH2Connection() {
         try {
             String url = "jdbc:h2:./h2db";
@@ -30,6 +31,7 @@ public class DBService {
         }
         return null;
     }
+
     public User getUser(long id) throws DBException {
         try {
             return (new AccountService(connection).get(id));
@@ -58,6 +60,6 @@ public class DBService {
             } catch (SQLException ignore) {
             }
         }
-    }
 
+    }
 }
