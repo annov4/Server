@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.SQLException;
 
 public class SignInServlet extends HttpServlet {
     private final AccountService accountService;
@@ -18,6 +17,7 @@ public class SignInServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        //авторизоваться
 
         String login = request.getParameter("login");
         String password = request.getParameter("password");
@@ -27,21 +27,14 @@ public class SignInServlet extends HttpServlet {
             response.getWriter().println("Enter login and password");
             return;
         }
+        response.getWriter().println("Authorized: " + login);
+        accountService.insertUser(new User(login, password));
+        accountService.CreateTable();
 
-        try {
-            User user = accountService.getUserByLogin(login);
-            if (user == null || !user.getPassword().equals(password)) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().println("Incorrect password");
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-            response.getWriter().println("Authorized: " + login);
-        try {
-            accountService.insertUser(new User(login, password));
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        User user = accountService.getUserByLogin(login);
+        if (user == null || !user.getPassword().equals(password)) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().println("Incorrect password");
         }
     }
 }

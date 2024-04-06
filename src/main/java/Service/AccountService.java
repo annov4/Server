@@ -1,48 +1,58 @@
 package Service;
 
-
-import Executor.Executor;
-import java.sql.Connection;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class AccountService {
-    private Executor executor;
+    private static final String url = "jdbc:h2://Users/anastasianovikova/Desktop/java_junior/Server/db/users";
 
-    public AccountService(Connection connection) throws SQLException{
-        this.executor = new Executor(connection);
+    private Connection connection;
+
+    public void CreateTable() {
         try {
-            createTable();
+            // устанавливаем соединение с базой данных
+            connection = DriverManager.getConnection(url);
+
+            // создаем таблицу
+            Statement createTableStatement = connection.createStatement();
+            String createTableQuery = "CREATE TABLE IF NOT EXISTS users (login VARCHAR(50), password VARCHAR(50))";
+            createTableStatement.executeUpdate(createTableQuery);
+            createTableStatement.close();//закрываю соединение
         } catch (SQLException e) {
-            throw e;
+            System.err.println("Exception: " + e.getMessage());
         }
     }
 
-    public User getUserByLogin(String login) throws SQLException {
-        return executor.execQuery("login='" + login + "'", result -> {
-            result.next();
-            return new User(result.getLong(1), result.getString(2), result.getString(3));
-        });
+    public void insertUser(User user) {
+        try {
+            connection = DriverManager.getConnection(url);
+            String preparedStatementQuery = "INSERT INTO users (login, password) VALUES (?, ?)";
+            PreparedStatement preparedStatement = connection.prepareStatement(preparedStatementQuery);
+            preparedStatement.setString(1, user.getLogin());
+            preparedStatement.setString(2, user.getPassword());
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public void insertUser(User user) throws SQLException {
-        executor.execUpdate("insert into users (login, password) values ('" + user.getLogin() + "','" + user.getPassword() + "')");
+    public User getUserByLogin(String login) {
+        User user = null;
+        try {
+            connection = DriverManager.getConnection(url);
+            String selectQuery = "SELECT * FROM users WHERE login = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);
+            preparedStatement.setString(1, login);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                String password = resultSet.getString("password");
+                user = new User(login, password);
+            }
+            resultSet.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return user;
     }
-
-    public void createTable() throws SQLException {
-        executor.execUpdate("create table if not exists users (id bigint auto_increment, login varchar(256), password varchar(256), primary key (id))");
-    }
-
-    public User get(long id) throws SQLException {
-        return executor.execQuery("id='" + id + "'", result -> {
-            result.next();
-            return new User(result.getLong(1), result.getString(2), result.getString(3));
-        });
-    }
-    public long getUserId(String login) throws SQLException {
-        return executor.execQuery("login='" + login + "'", result -> {
-            result.next();
-            return result.getLong(1);
-        });
-    }
-
 }

@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.SQLException;
 
 public class SignUpServlet extends HttpServlet {
     private final AccountService accountService;
@@ -18,6 +17,7 @@ public class SignUpServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        //зарегистрироваться
 
         String login = request.getParameter("login");
         String password = request.getParameter("password");
@@ -27,22 +27,14 @@ public class SignUpServlet extends HttpServlet {
             response.getWriter().println("Enter login and password");
             return;
         }
-        try {
-            User user = accountService.getUserByLogin(login);
-            if (user.getLogin().equals(login)) {
-                response.setStatus(HttpServletResponse.SC_CONFLICT);
-                response.getWriter().println("User with this login is already registered");
-                return;
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+
+        if (accountService.getUserByLogin(login) != null) {
+            response.setStatus(HttpServletResponse.SC_CONFLICT);
+            response.getWriter().println("User with this login is already registered");
+            return;
         }
-        User user = new User(login, password);
-                try {
-                    accountService.insertUser(user);
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
+        User user1 = new User(login, password);
+        accountService.insertUser(user1);
         response.setStatus(HttpServletResponse.SC_OK);
         response.getWriter().println("User registered");
     }

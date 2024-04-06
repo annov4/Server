@@ -6,11 +6,10 @@ import Servlet.SignUpServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import Service.DBService;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        AccountService accountService = new AccountService(DBService.getH2Connection());
+        AccountService accountService = new AccountService();
 
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 
