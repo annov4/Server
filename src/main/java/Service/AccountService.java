@@ -3,29 +3,14 @@ package Service;
 import java.sql.*;
 
 public class AccountService {
-    private static final String url = "jdbc:h2://Users/anastasianovikova/Desktop/java_junior/Server/db/users";
+    private static final String url = "jdbc:h2:/Users/anastasianovikova/Desktop/java_junior/Server/db/users";
 
     private Connection connection;
-
-    public void CreateTable() {
-        try {
-            // устанавливаем соединение с базой данных
-            connection = DriverManager.getConnection(url);
-
-            // создаем таблицу
-            Statement createTableStatement = connection.createStatement();
-            String createTableQuery = "CREATE TABLE IF NOT EXISTS users (login VARCHAR(50), password VARCHAR(50))";
-            createTableStatement.executeUpdate(createTableQuery);
-            createTableStatement.close();//закрываю соединение
-        } catch (SQLException e) {
-            System.err.println("Exception: " + e.getMessage());
-        }
-    }
 
     public void insertUser(User user) {
         try {
             connection = DriverManager.getConnection(url);
-            String preparedStatementQuery = "INSERT INTO users (login, password) VALUES (?, ?)";
+            String preparedStatementQuery = "INSERT INTO users VALUES (?, ?)";
             PreparedStatement preparedStatement = connection.prepareStatement(preparedStatementQuery);
             preparedStatement.setString(1, user.getLogin());
             preparedStatement.setString(2, user.getPassword());
