@@ -21,6 +21,7 @@ public class SignUpServlet extends HttpServlet {
 
         String login = request.getParameter("login");
         String password = request.getParameter("password");
+        accountService.CreateTable();
 
         if (login == null || password == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -33,8 +34,8 @@ public class SignUpServlet extends HttpServlet {
             response.getWriter().println("User with this login is already registered");
             return;
         }
-        User user1 = new User(login, password);
-        accountService.insertUser(user1);
+        User user = new User(login, password);
+        accountService.insertUser(user);
         response.setStatus(HttpServletResponse.SC_OK);
         response.getWriter().println("User registered");
     }

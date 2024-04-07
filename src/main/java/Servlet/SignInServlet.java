@@ -27,14 +27,13 @@ public class SignInServlet extends HttpServlet {
             response.getWriter().println("Enter login and password");
             return;
         }
-        response.getWriter().println("Authorized: " + login);
-        accountService.insertUser(new User(login, password));
-        accountService.CreateTable();
 
         User user = accountService.getUserByLogin(login);
         if (user == null || !user.getPassword().equals(password)) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().println("Incorrect password");
+            return;
         }
+        response.getWriter().println("Authorized: " + login);
     }
 }
