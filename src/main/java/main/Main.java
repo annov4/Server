@@ -1,8 +1,8 @@
 package main;
 
-import Service.AccountService;
-import Servlet.SignInServlet;
-import Servlet.SignUpServlet;
+import service.AccountService;
+import servlet.SignInServlet;
+import servlet.SignUpServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
